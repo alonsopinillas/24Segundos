@@ -1,0 +1,117 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import Sidebar from '../components/Sidebar.astro';
+
+// Obtener todos los artículos ordenados por fecha descendente
+const allArticles = await getCollection('articles');
+const sorted = allArticles.sort((a, b) =>
+  new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+);
+
+const featured = sorted.find(a => a.data.featured) || sorted[0];
+const recent = sorted.filter(a => a.slug !== featured.slug).slice(0, 4);
+const more = sorted.filter(a => a.slug !== featured.slug).slice(4, 9);
+---
+
+<BaseLayout>
+  <div class="container">
+    <div class="home-grid">
+      <div class="main-col">
+        <!-- Artículo destacado -->
+        <ArticleCard article={featured} variant="large" />
+
+        <!-- Últimas noticias -->
+        <div class="section-header">
+          <h2>Últimas noticias</h2>
+          <a href="/noticias">Ver todas →</a>
+        </div>
+
+        <!-- Categorías -->
+        <div class="category-chips">
+          <a href="/noticias" class="chip active">Todo</a>
+          <a href="/categoria/nba" class="chip">NBA</a>
+          <a href="/categoria/rumores" class="chip">Rumores</a>
+          <a href="/categoria/traspasos" class="chip">Traspasos</a>
+          <a href="/categoria/playoffs" class="chip">Playoffs</a>
+          <a href="/categoria/draft" class="chip">Draft</a>
+          <a href="/categoria/opinion" class="chip">Opinión</a>
+        </div>
+
+        <div class="news-grid">
+          {recent.map(article => (
+            <ArticleCard article={article} variant="default" />
+          ))}
+        </div>
+
+        <!-- Más noticias en lista -->
+        <div class="section-header">
+          <h2>Más noticias</h2>
+          <a href="/noticias">Archivo →</a>
+        </div>
+
+        <div class="news-list">
+          {more.map(article => (
+            <ArticleCard article={article} variant="list" />
+          ))}
+        </div>
+      </div>
+
+      <Sidebar />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .home-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+    padding: 24px 0;
+  }
+
+  .category-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+
+  .chip {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-text-muted);
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .chip:hover { border-color: var(--color-accent); color: var(--color-white); }
+  .chip.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+  }
+
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 12px;
+  }
+
+  .news-list { display: flex; flex-direction: column; }
+
+  @media (max-width: 968px) {
+    .home-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>

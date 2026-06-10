@@ -1,0 +1,42 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Para desarrollo local descomenta esto:
+# local_backend: true
+
+media_folder: "public/images/articles"
+public_folder: "/images/articles"
+
+locale: "es"
+
+site_url: https://24segundos.netlify.app
+display_url: https://24segundos.netlify.app
+
+collections:
+  - name: "articles"
+    label: "Artículos"
+    label_singular: "Artículo"
+    folder: "src/content/articles"
+    create: true
+    slug: "{{slug}}"
+    format: "frontmatter"
+    extension: "md"
+    summary: "{{title}} · {{category}}"
+    fields:
+      - { name: "title", label: "Título", widget: "string" }
+      - { name: "description", label: "Descripción / resumen", widget: "text" }
+      - name: "category"
+        label: "Categoría"
+        widget: "select"
+        options: ["NBA", "Rumores", "Traspasos", "Playoffs", "Draft", "Opinión"]
+      - { name: "author", label: "Autor", widget: "string" }
+      - { name: "date", label: "Fecha de publicación", widget: "datetime", format: "YYYY-MM-DD" }
+      - { name: "image", label: "Imagen destacada", widget: "image", required: false }
+      - { name: "featured", label: "¿Destacar en portada?", widget: "boolean", default: false }
+      - name: "tags"
+        label: "Tags"
+        widget: "list"
+        required: false
+        hint: "Etiquetas separadas. Ej: lebron, lakers, traspaso"
+      - { name: "body", label: "Contenido del artículo", widget: "markdown" }

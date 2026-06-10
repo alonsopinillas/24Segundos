@@ -1,0 +1,173 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { teams } from '../../lib/teams.js';
+
+export async function getStaticPaths() {
+  return teams.map(team => ({
+    params: { id: team.id.toLowerCase() },
+    props: { team },
+  }));
+}
+
+const { team } = Astro.props;
+const allArticles = await getCollection('articles');
+
+// Filtrar artículos que mencionen al equipo en tags o título
+const teamArticles = allArticles
+  .filter(a => {
+    const text = `${a.data.title} ${a.data.description} ${a.data.tags?.join(' ') || ''}`.toLowerCase();
+    return text.includes(team.name.toLowerCase()) ||
+           text.includes(team.city.toLowerCase()) ||
+           a.data.tags?.some(t => t.toLowerCase().includes(team.id.toLowerCase()));
+  })
+  .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
+---
+
+<BaseLayout title={`${team.name} · 24 Segundos`} description={`Noticias y novedades de los ${team.name}`}>
+  <div class="team-hero" style={`background: linear-gradient(135deg, ${team.color}, #0a0a0a)`}>
+    <div class="container team-hero-content">
+      <div class="team-big-logo" style={`background: ${team.color}; border: 2px solid ${team.secondary}`}>
+        {team.id}
+      </div>
+      <div>
+        <span class="team-conference">Conferencia {team.conference} · División {team.division}</span>
+        <h1>{team.name}</h1>
+        <p>Toda la actualidad de los {team.name} en español.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container team-page">
+    <div class="team-stats-row">
+      <div class="stat-box">
+        <div class="stat-num">42</div>
+        <div class="stat-lbl">Victorias</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">30</div>
+        <div class="stat-lbl">Derrotas</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">.583</div>
+        <div class="stat-lbl">Porcentaje</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">6º</div>
+        <div class="stat-lbl">Conferencia</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>Últimas noticias de {team.name}</h2>
+    </div>
+
+    {teamArticles.length > 0 ? (
+      <div class="articles-grid">
+        {teamArticles.map(article => (
+          <ArticleCard article={article} variant="default" />
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state">
+        <i class="ti ti-news-off"></i>
+        <p>No hay noticias específicas de este equipo todavía. ¡Pronto habrá contenido!</p>
+        <a href="/noticias" class="empty-link">Ver todas las noticias →</a>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .team-hero { padding: 40px 0 36px; border-bottom: 2px solid var(--color-accent); }
+  .team-hero-content {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .team-big-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 900;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .team-conference {
+    color: rgba(255,255,255,0.8);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+  .team-hero h1 {
+    font-size: 38px;
+    color: white;
+    margin: 6px 0;
+    letter-spacing: -0.5px;
+  }
+  .team-hero p {
+    color: rgba(255,255,255,0.85);
+    font-size: 14px;
+  }
+
+  .team-page { padding: 24px 0 40px; }
+
+  .team-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .stat-box {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num {
+    color: var(--color-white);
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-lbl {
+    color: var(--color-text-dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-text-dim);
+  }
+  .empty-state i { font-size: 56px; margin-bottom: 14px; display: block; }
+  .empty-state p { margin-bottom: 16px; font-size: 14px; }
+  .empty-link {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  @media (max-width: 768px) {
+    .team-hero-content { flex-direction: column; text-align: center; gap: 16px; }
+    .team-big-logo { width: 80px; height: 80px; font-size: 20px; }
+    .team-hero h1 { font-size: 28px !important; }
+    .team-stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

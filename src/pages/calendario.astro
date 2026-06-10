@@ -1,0 +1,289 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Calendario NBA · 24 Segundos">
+  <div class="container calendar-page">
+    <div class="page-header">
+      <h1>Calendario</h1>
+      <p>Próximos partidos y resultados recientes en vivo.</p>
+    </div>
+
+    <div class="calendar-tabs">
+      <button class="cal-tab active" data-view="upcoming">Próximos partidos</button>
+      <button class="cal-tab" data-view="recent">Resultados recientes</button>
+    </div>
+
+    <div class="games-view" id="upcoming">
+      <div class="games-loading">
+        <div class="spinner"></div>
+        <p>Cargando partidos...</p>
+      </div>
+      <div class="games-list" id="upcomingList"></div>
+    </div>
+
+    <div class="games-view" id="recent" style="display:none">
+      <div class="games-loading">
+        <div class="spinner"></div>
+        <p>Cargando resultados...</p>
+      </div>
+      <div class="games-list" id="recentList"></div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .calendar-page { padding: 32px 0; }
+
+  .page-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--color-accent);
+  }
+  .page-header h1 { font-size: 36px; color: var(--color-white); margin-bottom: 8px; }
+  .page-header p { color: var(--color-text-muted); font-size: 15px; }
+
+  .calendar-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .cal-tab {
+    padding: 12px 20px;
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cal-tab:hover { color: var(--color-white); }
+  .cal-tab.active {
+    color: var(--color-white);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .games-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-text-dim);
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border-strong);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .games-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .game-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+  .game-card:hover { border-color: var(--color-accent); }
+
+  .game-card .game-status {
+    color: var(--color-accent);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .game-card .game-status.final { color: var(--color-text-dim); }
+
+  .game-teams { display: flex; flex-direction: column; gap: 10px; }
+
+  .game-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .game-team {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-white);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .game-team-logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: var(--color-bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+  }
+
+  .game-score {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--color-white);
+  }
+  .game-score.lose { color: var(--color-text-dim); }
+</style>
+
+<script>
+  const tabs = document.querySelectorAll('.cal-tab');
+  const views = document.querySelectorAll('.games-view');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const view = tab.getAttribute('data-view');
+      tabs.forEach(t => t.classList.remove('active'));
+      views.forEach(v => v.style.display = 'none');
+      tab.classList.add('active');
+      const el = document.getElementById(view);
+      if (el) el.style.display = 'block';
+    });
+  });
+
+  async function loadGames(type) {
+    const dates = [];
+    const today = new Date();
+
+    if (type === 'upcoming') {
+      for (let i = 0; i < 5; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() + i);
+        dates.push(d.toISOString().split('T')[0]);
+      }
+    } else {
+      for (let i = 1; i <= 4; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        dates.push(d.toISOString().split('T')[0]);
+      }
+    }
+
+    const params = new URLSearchParams();
+    dates.forEach(d => params.append('dates[]', d));
+    params.set('per_page', '50');
+
+    try {
+      const res = await fetch(`https://api.balldontlie.io/v1/games?${params}`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const games = data.data || [];
+
+      const filteredGames = type === 'upcoming'
+        ? games.filter(g => g.status !== 'Final')
+        : games.filter(g => g.status === 'Final');
+
+      renderGames(type, filteredGames);
+    } catch (e) {
+      renderGamesFallback(type);
+    }
+  }
+
+  function renderGames(type, games) {
+    const listEl = document.getElementById(`${type}List`);
+    const loadingEl = document.querySelector(`#${type} .games-loading`);
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    if (games.length === 0) {
+      listEl.innerHTML = `<p style="color: var(--color-text-dim); padding: 40px; text-align: center;">No hay partidos para mostrar en este período.</p>`;
+      return;
+    }
+
+    listEl.innerHTML = games.map(g => {
+      const isFinal = g.status === 'Final';
+      const homeWin = (g.home_team_score || 0) > (g.visitor_team_score || 0);
+      const date = new Date(g.date);
+      const status = isFinal ? 'FINAL' : date.toLocaleString('es-ES', {
+        weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+      });
+
+      return `
+        <div class="game-card">
+          <div class="game-status ${isFinal ? 'final' : ''}">${status}</div>
+          <div class="game-teams">
+            <div class="game-row">
+              <div class="game-team">
+                <div class="game-team-logo">${g.visitor_team.abbreviation}</div>
+                <span>${g.visitor_team.full_name}</span>
+              </div>
+              <span class="game-score ${homeWin && isFinal ? 'lose' : ''}">${g.visitor_team_score || '—'}</span>
+            </div>
+            <div class="game-row">
+              <div class="game-team">
+                <div class="game-team-logo">${g.home_team.abbreviation}</div>
+                <span>${g.home_team.full_name}</span>
+              </div>
+              <span class="game-score ${!homeWin && isFinal ? 'lose' : ''}">${g.home_team_score || '—'}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderGamesFallback(type) {
+    const listEl = document.getElementById(`${type}List`);
+    const loadingEl = document.querySelector(`#${type} .games-loading`);
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    const samples = type === 'upcoming' ? [
+      { status: 'Jue 13 Jun · 20:30', away: 'MIA', awayName: 'Miami Heat', awayScore: '—', home: 'NYK', homeName: 'New York Knicks', homeScore: '—', final: false },
+      { status: 'Jue 13 Jun · 22:00', away: 'CLE', awayName: 'Cleveland Cavaliers', awayScore: '—', home: 'MIL', homeName: 'Milwaukee Bucks', homeScore: '—', final: false },
+      { status: 'Vie 14 Jun · 20:00', away: 'DAL', awayName: 'Dallas Mavericks', awayScore: '—', home: 'BOS', homeName: 'Boston Celtics', homeScore: '—', final: false },
+      { status: 'Sáb 15 Jun · 21:00', away: 'PHX', awayName: 'Phoenix Suns', awayScore: '—', home: 'HOU', homeName: 'Houston Rockets', homeScore: '—', final: false },
+    ] : [
+      { status: 'FINAL', away: 'LAL', awayName: 'LA Lakers', awayScore: 112, home: 'BOS', homeName: 'Boston Celtics', homeScore: 108, final: true },
+      { status: 'FINAL', away: 'DAL', awayName: 'Dallas Mavericks', awayScore: 125, home: 'DEN', homeName: 'Denver Nuggets', homeScore: 119, final: true },
+      { status: 'FINAL', away: 'GSW', awayName: 'Golden State Warriors', awayScore: 118, home: 'CHI', homeName: 'Chicago Bulls', homeScore: 104, final: true },
+    ];
+
+    listEl.innerHTML = samples.map(g => {
+      const homeWin = g.final && g.homeScore > g.awayScore;
+      return `
+        <div class="game-card">
+          <div class="game-status ${g.final ? 'final' : ''}">${g.status}</div>
+          <div class="game-teams">
+            <div class="game-row">
+              <div class="game-team">
+                <div class="game-team-logo">${g.away}</div>
+                <span>${g.awayName}</span>
+              </div>
+              <span class="game-score ${homeWin ? 'lose' : ''}">${g.awayScore}</span>
+            </div>
+            <div class="game-row">
+              <div class="game-team">
+                <div class="game-team-logo">${g.home}</div>
+                <span>${g.homeName}</span>
+              </div>
+              <span class="game-score ${!homeWin && g.final ? 'lose' : ''}">${g.homeScore}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  loadGames('upcoming');
+  loadGames('recent');
+</script>

@@ -1,0 +1,253 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map(article => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await article.render();
+const { title, description, category, author, date, image, tags } = article.data;
+
+const formattedDate = new Date(date).toLocaleDateString('es-ES', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+// Artículos relacionados (misma categoría)
+const allArticles = await getCollection('articles');
+const related = allArticles
+  .filter(a => a.data.category === category && a.slug !== article.slug)
+  .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf())
+  .slice(0, 3);
+---
+
+<BaseLayout title={`${title} · 24 Segundos`} description={description} image={image}>
+  <article class="article-page">
+    <div class="container article-container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/">Inicio</a>
+        <span>›</span>
+        <a href={`/categoria/${category.toLowerCase().replace('ó', 'o')}`}>{category}</a>
+      </nav>
+
+      <!-- Header -->
+      <header class="article-header">
+        <span class="category-badge">{category}</span>
+        <h1>{title}</h1>
+        <p class="article-description">{description}</p>
+        <div class="article-meta">
+          <div class="author-info">
+            <div class="author-avatar">
+              {author.split(' ').map(n => n[0]).join('').slice(0, 2)}
+            </div>
+            <div>
+              <div class="author-name">Por {author}</div>
+              <div class="article-date">{formattedDate}</div>
+            </div>
+          </div>
+          <div class="article-share">
+            <button aria-label="Compartir en Twitter"><i class="ti ti-brand-x"></i></button>
+            <button aria-label="Compartir en Facebook"><i class="ti ti-brand-facebook"></i></button>
+            <button aria-label="Compartir en WhatsApp"><i class="ti ti-brand-whatsapp"></i></button>
+            <button aria-label="Copiar enlace"><i class="ti ti-link"></i></button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Imagen destacada -->
+      {image && (
+        <div class="article-hero-img">
+          <img src={image} alt={title} />
+        </div>
+      )}
+      {!image && (
+        <div class="article-hero-placeholder">
+          <i class="ti ti-ball-basketball"></i>
+        </div>
+      )}
+
+      <!-- Contenido -->
+      <div class="article-content">
+        <Content />
+      </div>
+
+      <!-- Tags -->
+      {tags && tags.length > 0 && (
+        <div class="article-tags">
+          {tags.map(tag => (
+            <span class="tag">#{tag}</span>
+          ))}
+        </div>
+      )}
+
+      <!-- Relacionados -->
+      {related.length > 0 && (
+        <section class="related-section">
+          <div class="section-header">
+            <h2>Más sobre {category}</h2>
+          </div>
+          <div class="related-grid">
+            {related.map(a => (
+              <ArticleCard article={a} variant="default" />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-page { padding: 24px 0 40px; }
+  .article-container { max-width: 800px; }
+
+  .breadcrumb {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-text-dim);
+    margin-bottom: 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+  .breadcrumb a:hover { color: var(--color-accent); }
+
+  .article-header { margin-bottom: 28px; }
+  .article-header .category-badge { margin-bottom: 16px; }
+  .article-header h1 {
+    font-size: 38px;
+    line-height: 1.15;
+    color: var(--color-white);
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .article-description {
+    color: var(--color-text-muted);
+    font-size: 19px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    font-weight: 400;
+  }
+
+  .article-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(230, 57, 70, 0.15);
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .author-name { font-size: 14px; color: var(--color-white); font-weight: 600; }
+  .article-date {
+    font-size: 12px;
+    color: var(--color-text-dim);
+    text-transform: capitalize;
+  }
+
+  .article-share { display: flex; gap: 8px; }
+  .article-share button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-bg-elevated);
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .article-share button:hover {
+    background: var(--color-accent);
+    color: white;
+  }
+
+  .article-hero-img {
+    margin: 24px 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .article-hero-img img { width: 100%; display: block; }
+  .article-hero-placeholder {
+    height: 280px;
+    margin: 24px 0;
+    background: linear-gradient(135deg, #2a0a0d, #0a0a0a);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-accent);
+    font-size: 80px;
+    opacity: 0.6;
+  }
+
+  .article-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 32px 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .tag {
+    background: var(--color-bg-elevated);
+    color: var(--color-text-muted);
+    padding: 5px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+  }
+
+  .related-section { margin-top: 40px; }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+  }
+
+  @media (max-width: 768px) {
+    .article-header h1 { font-size: 26px !important; }
+    .article-description { font-size: 16px; }
+    .article-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+  }
+</style>

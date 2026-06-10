@@ -1,0 +1,183 @@
+---
+// Strip de marcadores en vivo. Los datos se cargan via JS desde el cliente
+// para que se actualicen sin rebuild. La build inicial muestra placeholders.
+---
+
+<div class="scores-strip" id="scoresStrip">
+  <div class="scores-inner">
+    <span class="scores-label">PARTIDOS</span>
+    <div class="scores-loading">
+      <span class="skeleton"></span>
+      <span class="skeleton"></span>
+      <span class="skeleton"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .scores-strip {
+    background: #0d0d0d;
+    border-bottom: 1px solid var(--color-border);
+    padding: 10px 0;
+  }
+  .scores-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 20px;
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+  .scores-inner::-webkit-scrollbar { display: none; }
+  .scores-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-accent);
+    letter-spacing: 1.5px;
+    padding-right: 12px;
+    border-right: 1px solid var(--color-border-strong);
+    flex-shrink: 0;
+  }
+  .scores-loading { display: flex; gap: 12px; }
+  .skeleton {
+    width: 180px;
+    height: 50px;
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-md);
+    animation: pulse 1.5s infinite;
+  }
+  .game-pill {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 8px 14px;
+    min-width: 180px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.2s;
+  }
+  .game-pill:hover { border-color: var(--color-accent); }
+  .game-pill .status {
+    color: var(--color-accent);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+  }
+  .game-pill .status.final { color: var(--color-text-dim); }
+  .game-pill .teams {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--color-text);
+  }
+  .game-pill .score { font-weight: 700; }
+  .game-pill .score.win { color: var(--color-white); }
+  .game-pill .score.lose { color: var(--color-text-dim); }
+</style>
+
+<script>
+  // === Carga de partidos desde balldontlie.io ===
+  // Se ejecuta en el navegador, por lo que los datos siempre están frescos
+  // sin necesidad de rebuild.
+
+  async function loadScores() {
+    const strip = document.getElementById('scoresStrip');
+    if (!strip) return;
+    const inner = strip.querySelector('.scores-inner');
+    if (!inner) return;
+
+    try {
+      // Obtenemos partidos de los últimos 2 días + hoy
+      const today = new Date();
+      const dates = [];
+      for (let i = 0; i < 3; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        dates.push(d.toISOString().split('T')[0]);
+      }
+
+      const params = new URLSearchParams();
+      dates.forEach(d => params.append('dates[]', d));
+      params.set('per_page', '12');
+
+      const res = await fetch(`https://api.balldontlie.io/v1/games?${params}`);
+
+      if (!res.ok) {
+        // Si la API falla mostramos datos de ejemplo
+        renderFallback(inner);
+        return;
+      }
+
+      const data = await res.json();
+      const games = data.data || [];
+
+      if (games.length === 0) {
+        renderFallback(inner);
+        return;
+      }
+
+      const loading = inner.querySelector('.scores-loading');
+      if (loading) loading.remove();
+
+      games.slice(0, 8).forEach(game => {
+        const homeWin = (game.home_team_score || 0) > (game.visitor_team_score || 0);
+        const isFinal = game.status === 'Final';
+        const status = isFinal ? 'FINAL' : (game.status || 'PROG');
+
+        const pill = document.createElement('a');
+        pill.href = '/calendario';
+        pill.className = 'game-pill';
+        pill.innerHTML = `
+          <span class="status ${isFinal ? 'final' : ''}">${status}</span>
+          <div class="teams">
+            <span>${game.visitor_team.abbreviation}</span>
+            <span class="score ${!homeWin && isFinal ? 'win' : 'lose'}">${game.visitor_team_score || '—'}</span>
+          </div>
+          <div class="teams">
+            <span>${game.home_team.abbreviation}</span>
+            <span class="score ${homeWin && isFinal ? 'win' : 'lose'}">${game.home_team_score || '—'}</span>
+          </div>
+        `;
+        inner.appendChild(pill);
+      });
+    } catch (e) {
+      console.error('Error loading scores:', e);
+      renderFallback(inner);
+    }
+  }
+
+  function renderFallback(inner) {
+    const loading = inner.querySelector('.scores-loading');
+    if (loading) loading.remove();
+
+    // Datos de ejemplo si la API no responde
+    const fallback = [
+      { status: 'FINAL', away: 'LAL', awayScore: 112, home: 'BOS', homeScore: 108 },
+      { status: 'FINAL', away: 'DAL', awayScore: 125, home: 'DEN', homeScore: 119 },
+      { status: 'FINAL', away: 'GSW', awayScore: 118, home: 'CHI', homeScore: 104 },
+      { status: 'HOY 20:30', away: 'MIA', awayScore: '—', home: 'NYK', homeScore: '—' },
+    ];
+
+    fallback.forEach(g => {
+      const isFinal = g.status === 'FINAL';
+      const homeWin = isFinal && g.homeScore > g.awayScore;
+      const pill = document.createElement('div');
+      pill.className = 'game-pill';
+      pill.innerHTML = `
+        <span class="status ${isFinal ? 'final' : ''}">${g.status}</span>
+        <div class="teams"><span>${g.away}</span><span class="score ${!homeWin && isFinal ? 'win' : 'lose'}">${g.awayScore}</span></div>
+        <div class="teams"><span>${g.home}</span><span class="score ${homeWin ? 'win' : 'lose'}">${g.homeScore}</span></div>
+      `;
+      inner.appendChild(pill);
+    });
+  }
+
+  loadScores();
+  // Refrescar cada 60 segundos
+  setInterval(loadScores, 60000);
+</script>

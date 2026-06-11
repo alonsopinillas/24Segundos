@@ -2,33 +2,43 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getTeamById } from '../lib/teams.js';
 
-// Clasificaciones REALES de la temporada 2025-26 (final temporada regular)
-// Fuente: NBA.com / ESPN
+// Clasificaciones FINALES temporada regular 2025-26
+// Fuente: Wikipedia / NBA.com (datos verificados)
 
 const este = [
-  { rank: 1, team: 'DET', name: 'Detroit Pistons', w: 62, l: 20, pct: '.756', streak: 'G3' },
-  { rank: 2, team: 'CLE', name: 'Cleveland Cavaliers', w: 56, l: 26, pct: '.683', streak: 'G2' },
-  { rank: 3, team: 'NYK', name: 'New York Knicks', w: 54, l: 28, pct: '.659', streak: 'G5' },
-  { rank: 4, team: 'BOS', name: 'Boston Celtics', w: 51, l: 31, pct: '.622', streak: 'P1' },
-  { rank: 5, team: 'MIL', name: 'Milwaukee Bucks', w: 48, l: 34, pct: '.585', streak: 'G2' },
-  { rank: 6, team: 'PHI', name: 'Philadelphia 76ers', w: 46, l: 36, pct: '.561', streak: 'P1' },
-  { rank: 7, team: 'IND', name: 'Indiana Pacers', w: 44, l: 38, pct: '.537', streak: 'G1' },
-  { rank: 8, team: 'ATL', name: 'Atlanta Hawks', w: 43, l: 39, pct: '.524', streak: 'P2' },
-  { rank: 9, team: 'MIA', name: 'Miami Heat', w: 41, l: 41, pct: '.500', streak: 'G1' },
-  { rank: 10, team: 'ORL', name: 'Orlando Magic', w: 38, l: 44, pct: '.463', streak: 'P3' },
+  { rank: 1, team: 'DET', name: 'Detroit Pistons', w: 60, l: 22, pct: '.732' },
+  { rank: 2, team: 'BOS', name: 'Boston Celtics', w: 56, l: 26, pct: '.683' },
+  { rank: 3, team: 'NYK', name: 'New York Knicks', w: 53, l: 29, pct: '.646' },
+  { rank: 4, team: 'CLE', name: 'Cleveland Cavaliers', w: 52, l: 30, pct: '.634' },
+  { rank: 5, team: 'TOR', name: 'Toronto Raptors', w: 46, l: 36, pct: '.561' },
+  { rank: 6, team: 'ATL', name: 'Atlanta Hawks', w: 46, l: 36, pct: '.561' },
+  { rank: 7, team: 'PHI', name: 'Philadelphia 76ers', w: 45, l: 37, pct: '.549' },
+  { rank: 8, team: 'ORL', name: 'Orlando Magic', w: 45, l: 37, pct: '.549' },
+  { rank: 9, team: 'CHA', name: 'Charlotte Hornets', w: 44, l: 38, pct: '.537' },
+  { rank: 10, team: 'MIA', name: 'Miami Heat', w: 43, l: 39, pct: '.524' },
+  { rank: 11, team: 'MIL', name: 'Milwaukee Bucks', w: 32, l: 50, pct: '.390' },
+  { rank: 12, team: 'CHI', name: 'Chicago Bulls', w: 31, l: 51, pct: '.378' },
+  { rank: 13, team: 'BKN', name: 'Brooklyn Nets', w: 20, l: 62, pct: '.244' },
+  { rank: 14, team: 'IND', name: 'Indiana Pacers', w: 19, l: 63, pct: '.232' },
+  { rank: 15, team: 'WAS', name: 'Washington Wizards', w: 17, l: 65, pct: '.207' },
 ];
 
 const oeste = [
-  { rank: 1, team: 'OKC', name: 'Oklahoma City Thunder', w: 64, l: 18, pct: '.780', streak: 'G2' },
-  { rank: 2, team: 'SAS', name: 'San Antonio Spurs', w: 62, l: 20, pct: '.756', streak: 'G6' },
-  { rank: 3, team: 'DEN', name: 'Denver Nuggets', w: 52, l: 30, pct: '.634', streak: 'G3' },
-  { rank: 4, team: 'LAL', name: 'Los Angeles Lakers', w: 50, l: 32, pct: '.610', streak: 'G1' },
-  { rank: 5, team: 'MIN', name: 'Minnesota Timberwolves', w: 49, l: 33, pct: '.598', streak: 'P1' },
-  { rank: 6, team: 'HOU', name: 'Houston Rockets', w: 47, l: 35, pct: '.573', streak: 'G2' },
-  { rank: 7, team: 'GSW', name: 'Golden State Warriors', w: 44, l: 38, pct: '.537', streak: 'P2' },
-  { rank: 8, team: 'MEM', name: 'Memphis Grizzlies', w: 42, l: 40, pct: '.512', streak: 'G1' },
-  { rank: 9, team: 'LAC', name: 'LA Clippers', w: 40, l: 42, pct: '.488', streak: 'P1' },
-  { rank: 10, team: 'PHX', name: 'Phoenix Suns', w: 36, l: 46, pct: '.439', streak: 'G2' },
+  { rank: 1, team: 'OKC', name: 'Oklahoma City Thunder', w: 64, l: 18, pct: '.780' },
+  { rank: 2, team: 'SAS', name: 'San Antonio Spurs', w: 62, l: 20, pct: '.756' },
+  { rank: 3, team: 'DEN', name: 'Denver Nuggets', w: 54, l: 28, pct: '.659' },
+  { rank: 4, team: 'LAL', name: 'Los Angeles Lakers', w: 53, l: 29, pct: '.646' },
+  { rank: 5, team: 'HOU', name: 'Houston Rockets', w: 52, l: 30, pct: '.634' },
+  { rank: 6, team: 'MIN', name: 'Minnesota Timberwolves', w: 49, l: 33, pct: '.598' },
+  { rank: 7, team: 'PHX', name: 'Phoenix Suns', w: 45, l: 37, pct: '.549' },
+  { rank: 8, team: 'POR', name: 'Portland Trail Blazers', w: 42, l: 40, pct: '.512' },
+  { rank: 9, team: 'LAC', name: 'LA Clippers', w: 42, l: 40, pct: '.512' },
+  { rank: 10, team: 'GSW', name: 'Golden State Warriors', w: 37, l: 45, pct: '.451' },
+  { rank: 11, team: 'NOP', name: 'New Orleans Pelicans', w: 26, l: 56, pct: '.317' },
+  { rank: 12, team: 'DAL', name: 'Dallas Mavericks', w: 26, l: 56, pct: '.317' },
+  { rank: 13, team: 'MEM', name: 'Memphis Grizzlies', w: 25, l: 57, pct: '.305' },
+  { rank: 14, team: 'SAC', name: 'Sacramento Kings', w: 22, l: 60, pct: '.268' },
+  { rank: 15, team: 'UTA', name: 'Utah Jazz', w: 22, l: 60, pct: '.268' },
 ];
 ---
 
@@ -53,7 +63,6 @@ const oeste = [
               <th class="num">G</th>
               <th class="num">P</th>
               <th class="num">PCT</th>
-              <th class="num">RACHA</th>
             </tr>
           </thead>
           <tbody>
@@ -69,7 +78,6 @@ const oeste = [
                   <td class="num">{t.w}</td>
                   <td class="num">{t.l}</td>
                   <td class="num">{t.pct}</td>
-                  <td class="num"><span class={`streak ${t.streak.startsWith('G') ? 'win' : 'lose'}`}>{t.streak}</span></td>
                 </tr>
               );
             })}
@@ -90,7 +98,6 @@ const oeste = [
               <th class="num">G</th>
               <th class="num">P</th>
               <th class="num">PCT</th>
-              <th class="num">RACHA</th>
             </tr>
           </thead>
           <tbody>
@@ -106,7 +113,6 @@ const oeste = [
                   <td class="num">{t.w}</td>
                   <td class="num">{t.l}</td>
                   <td class="num">{t.pct}</td>
-                  <td class="num"><span class={`streak ${t.streak.startsWith('G') ? 'win' : 'lose'}`}>{t.streak}</span></td>
                 </tr>
               );
             })}
@@ -116,21 +122,50 @@ const oeste = [
     </div>
 
     <div class="legend">
-      <span class="legend-item"><span class="dot playoff"></span> Clasificado a Playoffs</span>
-      <span class="legend-item"><span class="dot playin"></span> Play-In Tournament</span>
+      <span class="legend-item"><span class="dot playoff"></span> Clasificado a Playoffs (1-6)</span>
+      <span class="legend-item"><span class="dot playin"></span> Play-In Tournament (7-10)</span>
     </div>
 
     <div class="info-note">
       <i class="ti ti-info-circle"></i>
-      <span>Datos finales de la temporada regular 2025-26. Las clasificaciones se actualizan al cierre de cada temporada.</span>
+      <span>Datos finales de la temporada regular 2025-26. Fuente: NBA.com</span>
     </div>
   </div>
 </BaseLayout>
 
 <style>
   .standings-page { padding: 32px 0; }
-
-  .page-header {
-    margin-bottom: 28px;
-    padding-bottom: 16px;
-    border-bottom: 2px
+  .page-header { margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid var(--color-accent); }
+  .page-header h1 { font-size: 36px; color: var(--color-white); margin-bottom: 8px; }
+  .page-header p { color: var(--color-text-muted); font-size: 15px; }
+  .standings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px; }
+  .conf-section { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .conf-header { padding: 16px 20px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
+  .conf-header h2 { color: var(--color-white); font-size: 18px; margin: 0; }
+  .conf-badge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: var(--radius-sm); color: white; letter-spacing: 1px; }
+  .conf-badge.east { background: #1d428a; }
+  .conf-badge.west { background: #c8102e; }
+  .standings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .standings-table thead { background: var(--color-bg-elevated); }
+  .standings-table th { color: var(--color-text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 10px 12px; text-align: left; font-weight: 600; }
+  .standings-table th.num { text-align: right; }
+  .standings-table td { padding: 10px 12px; border-bottom: 1px solid var(--color-border); color: var(--color-text); }
+  .standings-table tr:last-child td { border-bottom: none; }
+  .standings-table tr.playoff { background: rgba(76, 175, 80, 0.03); }
+  .standings-table tr.playin { background: rgba(255, 193, 7, 0.03); }
+  .standings-table tr:hover { background: rgba(230, 57, 70, 0.05); }
+  .standings-table .rank { color: var(--color-accent); font-weight: 800; width: 32px; }
+  .standings-table .team { display: flex; align-items: center; gap: 8px; }
+  .team-pill { display: inline-block; padding: 3px 6px; border-radius: 4px; color: white; font-size: 10px; font-weight: 700; min-width: 32px; text-align: center; }
+  .team-name { color: var(--color-white); font-weight: 500; font-size: 13px; }
+  .standings-table .num { text-align: right; font-weight: 600; }
+  .legend { display: flex; gap: 20px; color: var(--color-text-dim); font-size: 12px; padding: 12px 0; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot.playoff { background: rgba(76, 175, 80, 0.5); }
+  .dot.playin { background: rgba(255, 193, 7, 0.5); }
+  .info-note { margin-top: 12px; padding: 12px 16px; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text-dim); font-size: 12px; display: flex; align-items: center; gap: 10px; }
+  .info-note i { color: var(--color-accent); font-size: 16px; }
+  @media (max-width: 968px) { .standings-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .team-name { display: none; } }
+</style>

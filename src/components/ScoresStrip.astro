@@ -1,6 +1,5 @@
 ---
-// Strip de marcadores en vivo. Los datos se cargan via JS desde el cliente
-// para que se actualicen sin rebuild. La build inicial muestra placeholders.
+// Strip de marcadores. Si la API falla, muestra mensaje honesto en vez de partidos inventados.
 ---
 
 <div class="scores-strip" id="scoresStrip">
@@ -49,6 +48,12 @@
     border-radius: var(--radius-md);
     animation: pulse 1.5s infinite;
   }
+  .scores-empty {
+    color: var(--color-text-dim);
+    font-size: 12px;
+    padding: 14px 8px;
+    font-style: italic;
+  }
   .game-pill {
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
@@ -81,10 +86,6 @@
 </style>
 
 <script>
-  // === Carga de partidos desde balldontlie.io ===
-  // Se ejecuta en el navegador, por lo que los datos siempre están frescos
-  // sin necesidad de rebuild.
-
   async function loadScores() {
     const strip = document.getElementById('scoresStrip');
     if (!strip) return;
@@ -92,7 +93,6 @@
     if (!inner) return;
 
     try {
-      // Obtenemos partidos de los últimos 2 días + hoy
       const today = new Date();
       const dates = [];
       for (let i = 0; i < 3; i++) {
@@ -108,8 +108,7 @@
       const res = await fetch(`https://api.balldontlie.io/v1/games?${params}`);
 
       if (!res.ok) {
-        // Si la API falla mostramos datos de ejemplo
-        renderFallback(inner);
+        renderEmpty(inner);
         return;
       }
 
@@ -117,7 +116,7 @@
       const games = data.data || [];
 
       if (games.length === 0) {
-        renderFallback(inner);
+        renderEmpty(inner);
         return;
       }
 
@@ -147,37 +146,19 @@
       });
     } catch (e) {
       console.error('Error loading scores:', e);
-      renderFallback(inner);
+      renderEmpty(inner);
     }
   }
 
-  function renderFallback(inner) {
+  function renderEmpty(inner) {
     const loading = inner.querySelector('.scores-loading');
     if (loading) loading.remove();
-
-    // Datos de ejemplo si la API no responde
-    const fallback = [
-      { status: 'FINAL', away: 'LAL', awayScore: 112, home: 'BOS', homeScore: 108 },
-      { status: 'FINAL', away: 'DAL', awayScore: 125, home: 'DEN', homeScore: 119 },
-      { status: 'FINAL', away: 'GSW', awayScore: 118, home: 'CHI', homeScore: 104 },
-      { status: 'HOY 20:30', away: 'MIA', awayScore: '—', home: 'NYK', homeScore: '—' },
-    ];
-
-    fallback.forEach(g => {
-      const isFinal = g.status === 'FINAL';
-      const homeWin = isFinal && g.homeScore > g.awayScore;
-      const pill = document.createElement('div');
-      pill.className = 'game-pill';
-      pill.innerHTML = `
-        <span class="status ${isFinal ? 'final' : ''}">${g.status}</span>
-        <div class="teams"><span>${g.away}</span><span class="score ${!homeWin && isFinal ? 'win' : 'lose'}">${g.awayScore}</span></div>
-        <div class="teams"><span>${g.home}</span><span class="score ${homeWin ? 'win' : 'lose'}">${g.homeScore}</span></div>
-      `;
-      inner.appendChild(pill);
-    });
+    const empty = document.createElement('div');
+    empty.className = 'scores-empty';
+    empty.textContent = 'No hay partidos disponibles · Temporada en pausa';
+    inner.appendChild(empty);
   }
 
   loadScores();
-  // Refrescar cada 60 segundos
   setInterval(loadScores, 60000);
 </script>

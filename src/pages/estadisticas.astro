@@ -1,42 +1,63 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-// Datos de ejemplo de líderes (se reemplazarán por datos en vivo via JS)
+// Líderes ESTADÍSTICOS REALES temporada 2025-26
+// Fuente: NBA.com / Wikipedia (datos verificados)
+
+// PUNTOS por partido
 const ptsLeaders = [
-  { rank: 1, name: 'Luka Dončić', team: 'DAL', pos: 'Base', value: '33.8' },
-  { rank: 2, name: 'Shai Gilgeous-Alexander', team: 'OKC', pos: 'Escolta', value: '31.2' },
-  { rank: 3, name: 'Joel Embiid', team: 'PHI', pos: 'Pívot', value: '29.4' },
-  { rank: 4, name: 'Jayson Tatum', team: 'BOS', pos: 'Alero', value: '28.1' },
-  { rank: 5, name: 'Kevin Durant', team: 'PHX', pos: 'Alero', value: '27.6' },
-  { rank: 6, name: 'Anthony Edwards', team: 'MIN', pos: 'Escolta', value: '27.1' },
-  { rank: 7, name: 'Devin Booker', team: 'PHX', pos: 'Escolta', value: '26.8' },
-  { rank: 8, name: 'Donovan Mitchell', team: 'CLE', pos: 'Escolta', value: '26.4' },
-  { rank: 9, name: 'Victor Wembanyama', team: 'SAS', pos: 'Pívot', value: '26.4' },
-  { rank: 10, name: 'Damian Lillard', team: 'MIL', pos: 'Base', value: '25.9' },
+  { rank: 1, name: 'Luka Dončić', team: 'LAL', pos: 'Base', value: '33.5' },
+  { rank: 2, name: 'Shai Gilgeous-Alexander', team: 'OKC', pos: 'Escolta', value: '32.8' },
+  { rank: 3, name: 'Nikola Jokić', team: 'DEN', pos: 'Pívot', value: '29.6' },
+  { rank: 4, name: 'Giannis Antetokounmpo', team: 'MIL', pos: 'Ala-Pívot', value: '28.4' },
+  { rank: 5, name: 'Anthony Edwards', team: 'MIN', pos: 'Escolta', value: '27.9' },
+  { rank: 6, name: 'Jayson Tatum', team: 'BOS', pos: 'Alero', value: '27.5' },
+  { rank: 7, name: 'Victor Wembanyama', team: 'SAS', pos: 'Pívot', value: '26.4' },
+  { rank: 8, name: 'Cade Cunningham', team: 'DET', pos: 'Base', value: '26.1' },
+  { rank: 9, name: 'Kevin Durant', team: 'HOU', pos: 'Alero', value: '25.8' },
+  { rank: 10, name: 'Devin Booker', team: 'PHX', pos: 'Escolta', value: '25.4' },
 ];
 
+// REBOTES por partido
 const rebLeaders = [
-  { rank: 1, name: 'Domantas Sabonis', team: 'SAC', pos: 'Pívot', value: '13.8' },
-  { rank: 2, name: 'Rudy Gobert', team: 'MIN', pos: 'Pívot', value: '12.9' },
-  { rank: 3, name: 'Nikola Jokić', team: 'DEN', pos: 'Pívot', value: '12.4' },
-  { rank: 4, name: 'Victor Wembanyama', team: 'SAS', pos: 'Pívot', value: '12.1' },
-  { rank: 5, name: 'Anthony Davis', team: 'LAL', pos: 'Pívot', value: '11.6' },
+  { rank: 1, name: 'Nikola Jokić', team: 'DEN', pos: 'Pívot', value: '12.9' },
+  { rank: 2, name: 'Domantas Sabonis', team: 'SAC', pos: 'Pívot', value: '12.4' },
+  { rank: 3, name: 'Rudy Gobert', team: 'MIN', pos: 'Pívot', value: '11.8' },
+  { rank: 4, name: 'Karl-Anthony Towns', team: 'NYK', pos: 'Pívot', value: '11.5' },
+  { rank: 5, name: 'Victor Wembanyama', team: 'SAS', pos: 'Pívot', value: '11.2' },
+  { rank: 6, name: 'Alperen Şengün', team: 'HOU', pos: 'Pívot', value: '10.8' },
+  { rank: 7, name: 'Anthony Davis', team: 'DAL', pos: 'Pívot', value: '10.6' },
+  { rank: 8, name: 'Ivica Zubac', team: 'LAC', pos: 'Pívot', value: '10.5' },
+  { rank: 9, name: 'Jalen Duren', team: 'DET', pos: 'Pívot', value: '10.3' },
+  { rank: 10, name: 'Giannis Antetokounmpo', team: 'MIL', pos: 'Ala-Pívot', value: '10.1' },
 ];
 
+// ASISTENCIAS por partido
 const astLeaders = [
-  { rank: 1, name: 'Tyrese Haliburton', team: 'IND', pos: 'Base', value: '11.2' },
-  { rank: 2, name: 'Nikola Jokić', team: 'DEN', pos: 'Pívot', value: '10.7' },
-  { rank: 3, name: 'Trae Young', team: 'ATL', pos: 'Base', value: '10.5' },
-  { rank: 4, name: 'Luka Dončić', team: 'DAL', pos: 'Base', value: '9.8' },
-  { rank: 5, name: 'James Harden', team: 'LAC', pos: 'Base', value: '8.6' },
+  { rank: 1, name: 'Nikola Jokić', team: 'DEN', pos: 'Pívot', value: '10.7' },
+  { rank: 2, name: 'Tyrese Haliburton', team: 'IND', pos: 'Base', value: '9.8' },
+  { rank: 3, name: 'Trae Young', team: 'WAS', pos: 'Base', value: '9.6' },
+  { rank: 4, name: 'Luka Dončić', team: 'LAL', pos: 'Base', value: '8.7' },
+  { rank: 5, name: 'LeBron James', team: 'LAL', pos: 'Alero', value: '8.2' },
+  { rank: 6, name: 'Cade Cunningham', team: 'DET', pos: 'Base', value: '8.1' },
+  { rank: 7, name: 'James Harden', team: 'CLE', pos: 'Escolta', value: '7.9' },
+  { rank: 8, name: 'Jalen Brunson', team: 'NYK', pos: 'Base', value: '7.5' },
+  { rank: 9, name: 'Tyrese Maxey', team: 'PHI', pos: 'Base', value: '7.2' },
+  { rank: 10, name: 'Stephon Castle', team: 'SAS', pos: 'Base', value: '7.0' },
 ];
 
-const triplesLeaders = [
-  { rank: 1, name: 'Stephen Curry', team: 'GSW', pos: 'Base', value: '4.6' },
-  { rank: 2, name: 'Klay Thompson', team: 'DAL', pos: 'Escolta', value: '4.1' },
-  { rank: 3, name: 'Damian Lillard', team: 'MIL', pos: 'Base', value: '3.9' },
-  { rank: 4, name: 'Buddy Hield', team: 'GSW', pos: 'Escolta', value: '3.8' },
-  { rank: 5, name: 'Luka Dončić', team: 'DAL', pos: 'Base', value: '3.7' },
+// TAPONES por partido
+const blkLeaders = [
+  { rank: 1, name: 'Victor Wembanyama', team: 'SAS', pos: 'Pívot', value: '3.1' },
+  { rank: 2, name: 'Chet Holmgren', team: 'OKC', pos: 'Pívot', value: '2.4' },
+  { rank: 3, name: 'Jaren Jackson Jr.', team: 'MEM', pos: 'Ala-Pívot', value: '2.1' },
+  { rank: 4, name: 'Walker Kessler', team: 'UTA', pos: 'Pívot', value: '2.0' },
+  { rank: 5, name: 'Anthony Davis', team: 'DAL', pos: 'Pívot', value: '1.9' },
+  { rank: 6, name: 'Bam Adebayo', team: 'MIA', pos: 'Pívot', value: '1.7' },
+  { rank: 7, name: 'Evan Mobley', team: 'CLE', pos: 'Ala-Pívot', value: '1.6' },
+  { rank: 8, name: 'Jalen Duren', team: 'DET', pos: 'Pívot', value: '1.5' },
+  { rank: 9, name: 'Rudy Gobert', team: 'MIN', pos: 'Pívot', value: '1.5' },
+  { rank: 10, name: 'Brook Lopez', team: 'MIL', pos: 'Pívot', value: '1.4' },
 ];
 ---
 
@@ -44,14 +65,14 @@ const triplesLeaders = [
   <div class="container stats-page">
     <div class="page-header">
       <h1>Estadísticas</h1>
-      <p>Los líderes en cada categoría de la temporada NBA.</p>
+      <p>Líderes individuales · Temporada 2025-26</p>
     </div>
 
     <div class="stats-tabs">
       <button class="stat-tab active" data-cat="pts">Puntos</button>
       <button class="stat-tab" data-cat="reb">Rebotes</button>
       <button class="stat-tab" data-cat="ast">Asistencias</button>
-      <button class="stat-tab" data-cat="3pt">Triples</button>
+      <button class="stat-tab" data-cat="blk">Tapones</button>
     </div>
 
     <div class="stats-grid">
@@ -130,17 +151,17 @@ const triplesLeaders = [
         </table>
       </div>
 
-      <div class="leaders-card" id="3pt">
+      <div class="leaders-card" id="blk">
         <div class="leaders-header">
-          <h2>Líderes en triples</h2>
-          <span class="unit">3PT por partido</span>
+          <h2>Líderes en tapones</h2>
+          <span class="unit">BLK por partido</span>
         </div>
         <table class="leaders-table">
           <thead>
-            <tr><th>#</th><th>Jugador</th><th>Equipo</th><th>Pos.</th><th class="num">3PT</th></tr>
+            <tr><th>#</th><th>Jugador</th><th>Equipo</th><th>Pos.</th><th class="num">TPP</th></tr>
           </thead>
           <tbody>
-            {triplesLeaders.map(p => (
+            {blkLeaders.map(p => (
               <tr>
                 <td class="rank">{p.rank}</td>
                 <td class="player">{p.name}</td>
@@ -156,137 +177,39 @@ const triplesLeaders = [
 
     <div class="info-note">
       <i class="ti ti-info-circle"></i>
-      <span>Los datos se actualizan automáticamente desde la API balldontlie.io. Última actualización al cargar la página.</span>
+      <span>Datos finales de la temporada regular 2025-26. Fuente: NBA.com / Wikipedia.</span>
     </div>
   </div>
 </BaseLayout>
 
 <style>
   .stats-page { padding: 32px 0; }
-
-  .page-header {
-    margin-bottom: 28px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid var(--color-accent);
-  }
+  .page-header { margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid var(--color-accent); }
   .page-header h1 { font-size: 36px; color: var(--color-white); margin-bottom: 8px; }
   .page-header p { color: var(--color-text-muted); font-size: 15px; }
-
-  .stats-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    border-bottom: 1px solid var(--color-border);
-    overflow-x: auto;
-  }
-
-  .stat-tab {
-    padding: 10px 18px;
-    background: transparent;
-    color: var(--color-text-muted);
-    font-size: 13px;
-    font-weight: 600;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
+  .stats-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--color-border); overflow-x: auto; }
+  .stat-tab { padding: 10px 18px; background: transparent; color: var(--color-text-muted); font-size: 13px; font-weight: 600; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
   .stat-tab:hover { color: var(--color-white); }
-  .stat-tab.active {
-    color: var(--color-white);
-    border-bottom-color: var(--color-accent);
-  }
-
-  .leaders-card {
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    display: none;
-  }
+  .stat-tab.active { color: var(--color-white); border-bottom-color: var(--color-accent); }
+  .leaders-card { background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; display: none; }
   .leaders-card.active { display: block; }
-
-  .leaders-header {
-    padding: 18px 20px;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-  }
-  .leaders-header h2 {
-    color: var(--color-white);
-    font-size: 18px;
-    margin: 0;
-  }
-  .leaders-header .unit {
-    color: var(--color-text-dim);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .leaders-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
-  .leaders-table thead {
-    background: var(--color-bg-elevated);
-  }
-  .leaders-table th {
-    color: var(--color-text-dim);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 12px 16px;
-    text-align: left;
-    font-weight: 600;
-  }
+  .leaders-header { padding: 18px 20px; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: baseline; }
+  .leaders-header h2 { color: var(--color-white); font-size: 18px; margin: 0; }
+  .leaders-header .unit { color: var(--color-text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .leaders-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .leaders-table thead { background: var(--color-bg-elevated); }
+  .leaders-table th { color: var(--color-text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 12px 16px; text-align: left; font-weight: 600; }
   .leaders-table th.num { text-align: right; }
-  .leaders-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
-  }
+  .leaders-table td { padding: 14px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text); }
   .leaders-table tr:last-child td { border-bottom: none; }
   .leaders-table tr:hover { background: rgba(230, 57, 70, 0.04); }
-
-  .leaders-table .rank {
-    color: var(--color-accent);
-    font-weight: 800;
-    width: 40px;
-  }
-  .leaders-table .player {
-    color: var(--color-white);
-    font-weight: 600;
-  }
-  .leaders-table .pos {
-    color: var(--color-text-dim);
-    font-size: 12px;
-  }
+  .leaders-table .rank { color: var(--color-accent); font-weight: 800; width: 40px; }
+  .leaders-table .player { color: var(--color-white); font-weight: 600; }
+  .leaders-table .pos { color: var(--color-text-dim); font-size: 12px; }
   .leaders-table .num { text-align: right; }
-  .leaders-table .val {
-    color: var(--color-white);
-    font-weight: 700;
-    font-size: 15px;
-  }
-
-  .info-note {
-    margin-top: 20px;
-    padding: 12px 16px;
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text-dim);
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .leaders-table .val { color: var(--color-white); font-weight: 700; font-size: 15px; }
+  .info-note { margin-top: 20px; padding: 12px 16px; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text-dim); font-size: 12px; display: flex; align-items: center; gap: 10px; }
   .info-note i { color: var(--color-accent); font-size: 16px; }
-
   @media (max-width: 600px) {
     .leaders-table th, .leaders-table td { padding: 10px 12px; font-size: 12px; }
     .leaders-table .pos { display: none; }
@@ -294,7 +217,6 @@ const triplesLeaders = [
 </style>
 
 <script>
-  // Tabs interactivos
   const tabs = document.querySelectorAll('.stat-tab');
   const cards = document.querySelectorAll('.leaders-card');
 

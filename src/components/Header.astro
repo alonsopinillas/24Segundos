@@ -2,10 +2,9 @@
 const navItems = [
   { name: 'Inicio', href: '/' },
   { name: 'Noticias', href: '/noticias' },
-  { name: 'Equipos', href: '/equipos' },
-  { name: 'Estadísticas', href: '/estadisticas' },
-  { name: 'Clasificaciones', href: '/clasificaciones' },
-  { name: 'Calendario', href: '/calendario' },
+  { name: 'NBA', href: '/categoria/nba' },
+  { name: 'Rumores', href: '/categoria/rumores' },
+  { name: 'Traspasos', href: '/categoria/traspasos' },
   { name: 'Playoffs', href: '/categoria/playoffs' },
   { name: 'Draft', href: '/categoria/draft' },
   { name: 'Opinión', href: '/categoria/opinion' },
@@ -22,7 +21,7 @@ const today = new Date().toLocaleDateString('es-ES', {
 
 <div class="topbar">
   <div class="container topbar-content">
-    <span class="topbar-live"><span class="live-dot"></span>EN VIVO</span>
+    <span class="topbar-live"><span class="live-dot"></span>NOTICIAS NBA</span>
     <span class="topbar-date">{today}</span>
   </div>
 </div>
@@ -39,7 +38,7 @@ const today = new Date().toLocaleDateString('es-ES', {
       <div class="header-actions">
         <button class="search-btn" aria-label="Buscar">
           <i class="ti ti-search"></i>
-          <span class="search-placeholder">Buscar...</span>
+          <span class="search-placeholder">Buscar noticias...</span>
         </button>
         <button class="menu-btn" id="menuToggle" aria-label="Menú">
           <i class="ti ti-menu-2"></i>
@@ -49,7 +48,7 @@ const today = new Date().toLocaleDateString('es-ES', {
 
     <nav class="main-nav" id="mainNav">
       {navItems.map(item => (
-        <a
+        
           href={item.href}
           class={currentPath === item.href ? 'active' : ''}
         >
@@ -203,7 +202,6 @@ const today = new Date().toLocaleDateString('es-ES', {
 </style>
 
 <script>
-  // Mobile menu toggle (placeholder for future enhancement)
   const menuToggle = document.getElementById('menuToggle');
   const mainNav = document.getElementById('mainNav');
   menuToggle?.addEventListener('click', () => {
